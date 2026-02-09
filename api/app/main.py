@@ -28,20 +28,19 @@ async def wa_webhook(request: Request):
     return {"ok": True, "job_id": job.id}
 
 @app.get("/wa/webhook")
-def wa_webhook_verify(
-    hub_mode: str | None = Query(default=None, alias="hub.mode"),
-    hub_challenge: str | None = Query(default=None, alias="hub.challenge"),
-    hub_verify_token: str | None = Query(default=None, alias="hub.verify_token"),
-):
+async def wa_webhook_verify(request: Request):
+    qp = request.query_params
+    mode = (qp.get("hub.mode") or "").strip()
+    token = (qp.get("hub.verify_token") or "").strip()
+    challenge = (qp.get("hub.challenge") or "").strip()
+
     expected = (os.environ.get("META_VERIFY_TOKEN") or "").strip()
-    received = (hub_verify_token or "").strip()
 
-    # Debug útil (sale en logs)
-    print(f"[VERIFY] mode={hub_mode} received={received!r} expected={expected!r}")
+    # log para ver qué llega (Render logs)
+    print(f"[META-VERIFY] mode={mode!r} token={token!r} expected={expected!r} challenge={challenge!r}")
 
-    if hub_mode == "subscribe" and received == expected:
-        return PlainTextResponse(hub_challenge or "")
+    if mode == "subscribe" and token == expected:
+        return PlainTextResponse(challenge)
     return PlainTextResponse("forbidden", status_code=403)
-
 
 
