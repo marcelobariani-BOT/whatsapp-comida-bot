@@ -1,9 +1,16 @@
-import os
+import os, subprocess
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
-
 from db.models import Tenant, Conversation, Message
 
+def _print_commit():
+    try:
+        sha = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], stderr=subprocess.STDOUT).decode().strip()
+    except Exception as e:
+        sha = f"no-git ({e})"
+    print("[WORKER] CODE VERSION:", sha)
+
+_print_commit()
 
 def save_incoming(payload: dict, tenant_id: str = "demo") -> str:
     """
