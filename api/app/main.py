@@ -34,7 +34,10 @@ def wa_webhook_verify(
 ):
     # Meta manda: hub.mode, hub.challenge, hub.verify_token
     # FastAPI los mapea a hub_mode, hub_challenge, hub_verify_token
-    if hub_mode == "subscribe" and hub_verify_token == os.environ.get("META_VERIFY_TOKEN"):
+    expected = (os.environ.get("META_VERIFY_TOKEN") or "").strip()
+    received = (hub_verify_token or "").strip()
+    
+    if hub_mode == "subscribe" and received == expected:
         return PlainTextResponse(hub_challenge or "")
     return PlainTextResponse("forbidden", status_code=403)
 
