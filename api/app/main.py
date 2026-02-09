@@ -3,6 +3,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from app.queue import get_queue
+from app.workers.responder import process_payload
 
 app = FastAPI()
 
@@ -23,7 +24,7 @@ async def debug_enqueue(request: Request):
         payload = {}
 
     q = get_queue()
-    job = q.enqueue("app.workers.responder.process_payload", payload)
+    job = q.enqueue(process_payload, payload)
 
     return {"ok": True, "job_id": job.id}
 
@@ -39,7 +40,7 @@ async def wa_webhook(request: Request):
         payload = {}
 
     q = get_queue()
-    job = q.enqueue("app.workers.responder.process_payload", payload)
+    job = q.enqueue(process_payload, payload)
 
     return {"ok": True, "job_id": job.id}
 
