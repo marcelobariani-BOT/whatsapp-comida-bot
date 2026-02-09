@@ -1,4 +1,5 @@
 import os
+from fastapi import Query
 from fastapi.responses import PlainTextResponse
 from fastapi import FastAPI, Request, HTTPException
 from app.queue import get_queue
@@ -28,15 +29,16 @@ async def wa_webhook(request: Request):
 
 @app.get("/wa/webhook")
 def wa_webhook_verify(
-    hub_mode: str | None = None,
-    hub_challenge: str | None = None,
-    hub_verify_token: str | None = None,
+    hub_mode: str | None = Query(default=None, alias="hub.mode"),
+    hub_challenge: str | None = Query(default=None, alias="hub.challenge"),
+    hub_verify_token: str | None = Query(default=None, alias="hub.verify_token"),
 ):
-    # Meta manda: hub.mode, hub.challenge, hub.verify_token
-    # FastAPI los mapea a hub_mode, hub_challenge, hub_verify_token
     expected = (os.environ.get("META_VERIFY_TOKEN") or "").strip()
     received = (hub_verify_token or "").strip()
-    
+
+    # Debug útil (sale en logs)
+    print(f"[VERIFY] mode={hub_mode} received={received!r} expected={expected!r}")
+
     if hub_mode == "subscribe" and received == expected:
         return PlainTextResponse(hub_challenge or "")
     return PlainTextResponse("forbidden", status_code=403)
