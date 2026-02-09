@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from app.queue import get_queue
 
 app = FastAPI()
@@ -15,8 +15,13 @@ def debug_enqueue():
 
 @app.post("/wa/webhook")
 async def wa_webhook(request: Request):
-    payload = await request.json()
+    try:
+        payload = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid or empty JSON body")
+
     q = get_queue()
     job = q.enqueue("app.workers.responder.handle_incoming", payload)
     return {"ok": True, "job_id": job.id}
+
 
