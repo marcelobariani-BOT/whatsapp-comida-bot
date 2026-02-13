@@ -6,4 +6,4 @@ sqlalchemy>=2.0
 asyncpg
 alembic
 greenlet
-psycopg[binary]==3.2.1
+psycopg[binary]==3.3.2
