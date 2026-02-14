@@ -1,8 +1,9 @@
 import os
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-
 from app.queue import get_queue
+from sqlalchemy import text
+from sqlalchemy import create_engine
 
 app = FastAPI()
 
@@ -54,3 +55,25 @@ def wa_webhook_verify(request: Request):
         return JSONResponse(content=int(challenge))
 
     return JSONResponse(status_code=403, content={"ok": False})
+
+@app.get("/debug/db-check")
+def debug_db_check():
+    url = os.getenv("DATABASE_URL")
+    if not url:
+        return {"ok": False, "error": "DATABASE_URL not set"}
+
+    engine = create_engine(url, pool_pre_ping=True)
+
+    with engine.connect() as conn:
+        # chequea si existe conversation_state en schema public
+        exists = conn.execute(text("""
+            SELECT EXISTS (
+              SELECT 1
+              FROM information_schema.tables
+              WHERE table_schema = 'public'
+                AND table_name = 'conversation_state'
+            ) AS exists;
+        """)).scalar_one()
+
+        return {"ok": True, "conversation_state_exists": bool(exists)}
+
