@@ -21,8 +21,7 @@ async def debug_enqueue(request: Request):
         payload = {}
 
     q = get_queue()
-    from app.workers.responder import process_payload  # lazy import
-    job = q.enqueue(process_payload, payload)
+    job = q.enqueue_call(func="app.workers.responder.process_payload", args=(payload,))
 
     return {"ok": True, "job_id": job.id}
 
