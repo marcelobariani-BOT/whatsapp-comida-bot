@@ -39,3 +39,6 @@ class Message(Base):
     __table_args__ = (
         Index("ix_messages_conversation_created", "conversation_id", "created_at"),
     )
+
+
+
