@@ -3,6 +3,7 @@ from sqlalchemy import String, Text, DateTime, ForeignKey, func, Index
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base
+from .state import ConversationState
 
 class Tenant(Base):
     __tablename__ = "tenants"
