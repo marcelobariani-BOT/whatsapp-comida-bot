@@ -150,15 +150,15 @@ def next_step(stage: str, state: Dict[str, Any], text: str) -> Tuple[str, Dict[s
         return "ASK_SIZE", state, "¿Grande o chica?"
 
     if stage == "ASK_DELIVERY":
-    # ✅ Si manda una dirección sin decir "envío", asumimos ENVÍO automáticamente
-    if slots["address"] and not slots["delivery"]:
-        order["delivery"] = "envio"
-        order["address"] = slots["address"]
-        return (
-            "CONFIRM",
-            state,
-            f"Perfecto ✅ {order.get('flavor','pizza')} {order.get('size','')} para ENVÍO a “{order['address']}”. ¿Confirmás? (sí/no)",
-        )
+        # ✅ Si manda una dirección sin decir "envío", asumimos ENVÍO automáticamente
+        if slots["address"] and not slots["delivery"]:
+            order["delivery"] = "envio"
+            order["address"] = slots["address"]
+            return (
+                "CONFIRM",
+                state,
+                f"Perfecto ✅ {order.get('flavor','pizza')} {order.get('size','')} para ENVÍO a “{order['address']}”. ¿Confirmás? (sí/no)",
+            )
 
     if slots["delivery"]:
         order["delivery"] = slots["delivery"]
