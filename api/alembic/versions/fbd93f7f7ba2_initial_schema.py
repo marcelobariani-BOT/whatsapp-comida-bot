@@ -13,7 +13,7 @@ from sqlalchemy.dialects import postgresql
 
 
 # 👇 Pegá acá los valores que te generó Alembic en tu archivo
-revision = "<ALEMBIC_GENERATED_REVISION_ID>"
+revision = "fbd93f7f7ba2"
 down_revision = None  # o el que venga
 branch_labels = None
 depends_on = None
