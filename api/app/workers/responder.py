@@ -270,13 +270,17 @@ def save_incoming_and_reply(payload: Dict[str, Any]) -> Tuple[str, str]:
         return str(conv.id), reply
 
 
-def process_payload(payload: Dict[str, Any]):
+def process_payload(payload: dict):
+    # ignorar jobs basura
+    if not isinstance(payload, dict) or not payload.get("wa_id") or not payload.get("text"):
+        print("[WORKER] Ignored payload (missing wa_id/text):", payload)
+        return {"ok": False, "ignored": True}
+
     print("[WORKER] got payload:", payload)
     conv_id, reply = save_incoming_and_reply(payload)
     print("[WORKER] saved incoming. conv_id:", conv_id)
     print("[WORKER] reply:", reply)
     return {"ok": True, "conversation_id": conv_id, "reply": reply}
-
 
 def handle_incoming(payload: Dict[str, Any]):
     return process_payload(payload)
