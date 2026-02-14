@@ -76,4 +76,35 @@ def debug_db_check():
         """)).scalar_one()
 
         return {"ok": True, "conversation_state_exists": bool(exists)}
+        
+@app.get("/debug/db-info")
+def debug_db_info():
+    url = os.getenv("DATABASE_URL")
+    if not url:
+        return {"ok": False, "error": "DATABASE_URL not set"}
 
+    engine = create_engine(url, pool_pre_ping=True)
+
+    with engine.connect() as conn:
+        # alembic version
+        try:
+            alembic_version = conn.execute(text("select version_num from alembic_version")).scalar()
+        except Exception as ex:
+            alembic_version = f"NO alembic_version table ({ex})"
+
+        # search conversation_state in any schema
+        rows = conn.execute(text("""
+            select table_schema, table_name
+            from information_schema.tables
+            where table_name = 'conversation_state'
+            order by table_schema
+        """)).all()
+
+        current_schema = conn.execute(text("select current_schema()")).scalar()
+
+        return {
+            "ok": True,
+            "alembic_version": alembic_version,
+            "conversation_state_tables": [{"schema": r[0], "table": r[1]} for r in rows],
+            "current_schema": current_schema,
+        }
