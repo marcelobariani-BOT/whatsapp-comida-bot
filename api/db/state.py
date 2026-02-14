@@ -18,6 +18,7 @@ class ConversationState(Base):
         UUID(as_uuid=True),
         ForeignKey("conversations.id", ondelete="CASCADE"),
         primary_key=True,
+        nullable=False,
     )
 
     tenant_id: Mapped[str] = mapped_column(
